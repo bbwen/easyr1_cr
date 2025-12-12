@@ -182,3 +182,35 @@ tensorboard_log/
 # data
 images/
 images*
+
+
+data/*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Conda / venv
+.env
+.venv
+env/
+venv/
+
+# Datasets & outputs
+data/
+results/
+eval_results/
+eval_outputs/
+checkpoints/
+
+# HuggingFace cache
+.cache/
+hf_cache/
+
+# Logs
+*.log
+
+# OS
+.DS_Store

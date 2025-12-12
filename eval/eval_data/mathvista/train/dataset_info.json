@@ -1,0 +1,143 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "math_vista",
+  "dataset_size": 892252475,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/AI4Math/MathVista@2b6ad69445fbb5695c9b165475e8decdbeb97747/data/testmini-00000-of-00001-725687bf7a18d64b.parquet": {
+      "num_bytes": 141568126,
+      "checksum": null
+    },
+    "hf://datasets/AI4Math/MathVista@2b6ad69445fbb5695c9b165475e8decdbeb97747/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet": {
+      "num_bytes": 357852357,
+      "checksum": null
+    },
+    "hf://datasets/AI4Math/MathVista@2b6ad69445fbb5695c9b165475e8decdbeb97747/data/test-00001-of-00002-6a611c71596db30f.parquet": {
+      "num_bytes": 386399007,
+      "checksum": null
+    }
+  },
+  "download_size": 885819490,
+  "features": {
+    "pid": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "image": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "decoded_image": {
+      "_type": "Image"
+    },
+    "choices": {
+      "feature": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "unit": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "precision": {
+      "dtype": "float64",
+      "_type": "Value"
+    },
+    "answer": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "question_type": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "answer_type": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "metadata": {
+      "category": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "context": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "grade": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "img_height": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "img_width": {
+        "dtype": "int64",
+        "_type": "Value"
+      },
+      "language": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "skills": {
+        "feature": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "source": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "split": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "task": {
+        "dtype": "string",
+        "_type": "Value"
+      }
+    },
+    "query": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 1778071965,
+  "splits": {
+    "testmini": {
+      "name": "testmini",
+      "num_bytes": 142646241,
+      "num_examples": 1000,
+      "dataset_name": "math_vista"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 749606234,
+      "num_examples": 5141,
+      "shard_lengths": [
+        3471,
+        1670
+      ],
+      "dataset_name": "math_vista"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

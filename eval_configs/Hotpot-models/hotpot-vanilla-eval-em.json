@@ -1,0 +1,33 @@
+[ 
+{
+    "dataset_name": "mehuldamani/hotpot_qa",
+    "hash_key": "problem",
+    "store_name": "eval_outputs/Hotpot-models-fresh/hotpot-vanilla-eval-em",
+    "gpu_memory_utilization":0.9,
+    "log_path": "results/Hotpot-models-fresh/hotpot-vanilla-eval-em"
+}, 
+{   "name":"Base", 
+"model": "Qwen/Qwen2.5-1.5B-Instruct",
+"check_fn": "confidence_verifier",
+"sys_prompt_name": "tac",
+"vllm_task": ["confidence_at_end","ans_at_end"]
+},
+{   "name":"grpo", 
+"model": "Qwen/Qwen2.5-1.5B-Instruct",
+"check_fn": "confidence_verifier",
+"sys_prompt_name": "gen",
+"vllm_task": ["confidence_at_end","ans_at_end"]
+},
+{   "name":"Answer-Prob", 
+"model": "Qwen/Qwen2.5-1.5B-Instruct",
+"check_fn": "confidence_verifier",
+"sys_prompt_name": "gen",
+"vllm_task": ["confidence_prob","ans_at_end"]
+},
+{   "name":"confgrpo", 
+"model": "Qwen/Qwen2.5-1.5B-Instruct",
+"check_fn": "confidence_verifier",
+"sys_prompt_name": "tabc_long",
+"vllm_task": ["confidence_at_end","ans_at_end"]
+}
+]
