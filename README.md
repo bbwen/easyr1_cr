@@ -87,11 +87,48 @@ cd EasyR1
 pip install -e .
 ```
 
-### GRPO Training
+### GRPO Training Examples
+
+#### Geometry3K (Vision-Language)
 
 ```bash
 bash examples/qwen2_5_vl_7b_geo3k_grpo.sh
 ```
+
+#### HotpotQA (Text-Only)
+
+**With Confidence (Brier Score Reward)**:
+```bash
+# Uses math_conf.py reward function with Brier score
+bash examples/qwen3_4b_hotpot_grpo_conf.sh
+```
+
+**Original (Accuracy Only)**:
+```bash
+# Uses math_ori.py reward function (accuracy only)
+bash examples/qwen3_4b_hotpot_grpo_ori.sh
+```
+
+#### MathVista (Vision-Language)
+
+**With Confidence (Brier Score Reward)**:
+```bash
+# Uses math_conf.py reward function with Brier score
+bash examples/qwen2_5_vl_3b_mathvista_grpo_conf.sh
+```
+
+**Original (Accuracy Only)**:
+```bash
+# Uses math_ori.py reward function (accuracy only)
+bash examples/qwen2_5_vl_3b_mathvista_grpo_ori.sh
+```
+
+> [!NOTE]
+> **Reward Function Differences**:
+> - **`_conf` variants**: Use `math_conf.py` reward function which includes **Brier score** for confidence calibration. This rewards models that provide well-calibrated confidence estimates (confidence matches correctness).
+> - **`_ori` variants**: Use `math_ori.py` reward function which only considers format compliance and answer accuracy.
+> 
+> See [Reward Functions Documentation](examples/reward_function/README.md) for detailed information about the Brier score implementation.
 
 ### Merge Checkpoint in Hugging Face Format
 
@@ -104,6 +141,116 @@ python3 scripts/model_merger.py --local_dir checkpoints/easy_r1/exp_name/global_
 >
 > If you want to use SwanLab logger, consider using `bash examples/qwen2_5_vl_7b_geo3k_swanlab.sh`.
 
+## Evaluation
+
+EasyR1 provides evaluation scripts for assessing model performance on various datasets. Evaluation supports both text-only and vision-language models.
+
+### Evaluation Scripts
+
+- **`evaluation.py`**: For text-only models (e.g., HotpotQA)
+- **`evaluation_vl.py`**: For vision-language models (e.g., MathVista, Geometry3K)
+- **`scripts/evaluate_checkpoint.py`**: For evaluating EasyR1-trained checkpoints
+
+### Running Evaluation
+
+Evaluation uses JSON configuration files located in `eval_configs/`. Each config file specifies:
+- Dataset name and split
+- Model paths to evaluate
+- System prompts
+- Evaluation tasks (confidence extraction, answer extraction)
+- Output storage locations
+
+#### Text-Only Evaluation (HotpotQA)
+
+```bash
+# Evaluate on HotpotQA
+CUDA_VISIBLE_DEVICES=0 python evaluation.py --config eval_configs/Hotpot-models/hotpot-vanilla-eval-em.json
+```
+
+#### Vision-Language Evaluation (MathVista)
+
+```bash
+# Evaluate on MathVista
+CUDA_VISIBLE_DEVICES=0 python evaluation_vl.py --config eval_configs/Hotpot-models/mathvista_eval-em.json
+```
+
+#### Evaluating EasyR1 Checkpoints
+
+```bash
+# Evaluate a trained checkpoint
+python scripts/evaluate_checkpoint.py \
+    --model_path checkpoints/easy_r1/exp_name/global_step_1/actor \
+    --dataset_name mehuldamani/hotpot_qa \
+    --split test \
+    --output_dir eval_results
+```
+
+### Evaluation Config Format
+
+Evaluation configs are JSON files with the following structure:
+
+```json
+[
+  {
+    "dataset_name": "mehuldamani/hotpot_qa",
+    "hash_key": "problem",
+    "store_name": "eval_outputs/Hotpot-models-fresh/hotpot-vanilla-eval-em",
+    "gpu_memory_utilization": 0.9,
+    "log_path": "results/Hotpot-models-fresh/hotpot-vanilla-eval-em"
+  },
+  {
+    "name": "Base",
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "check_fn": "confidence_verifier",
+    "sys_prompt_name": "tac",
+    "vllm_task": ["confidence_at_end", "ans_at_end"]
+  }
+]
+```
+
+**Global Config (first entry)**:
+- `dataset_name`: HuggingFace dataset name or local path
+- `hash_key`: Key to use for dataset hashing/deduplication
+- `store_name`: Where to save evaluation results
+- `gpu_memory_utilization`: vLLM GPU memory utilization (0.0-1.0)
+- `log_path`: Path to save metrics JSON file
+
+**Model Configs (subsequent entries)**:
+- `name`: Model identifier for results
+- `model`: Model path (HuggingFace or local)
+- `check_fn`: Function to extract confidence/answers (`confidence_verifier` or `llm_confidence_verifier`)
+- `sys_prompt_name`: System prompt to use (see `system_prompts.py`)
+- `vllm_task`: Tasks to extract from responses:
+  - `confidence_at_end`: Extract confidence from `<confidence>` tags
+  - `ans_at_end`: Extract answer from `<answer>` tags
+  - `confidence_prob`: Extract confidence as probability
+
+### Evaluation Metrics
+
+The evaluation scripts compute:
+- **Accuracy**: Exact match between predicted and ground truth answers
+- **Brier Score**: Calibration metric (1 - (correctness - confidence)²)
+- **ECE (Expected Calibration Error)**: Measures calibration quality
+- **AUROC**: Area under ROC curve for confidence-based classification
+- **Pass@k**: Accuracy at top-k confidence thresholds
+
+Results are saved to:
+- `{log_path}/metrics.json`: Aggregated metrics
+- `{store_name}/`: Full evaluation dataset with predictions
+
+### Example Evaluation Run
+
+```bash
+# Run evaluation on HotpotQA
+bash eval_runs.sh
+
+# Or run specific evaluation
+CUDA_VISIBLE_DEVICES=0 python evaluation.py --config eval_configs/Hotpot-models/hotpot-vanilla-eval-em.json
+```
+
+> [!NOTE]
+> Evaluation results are cached. If you re-run evaluation with the same config, it will load existing results and only evaluate new models. Use `--fresh` flag (if supported) to force re-evaluation.
+
 ## Custom Dataset
 
 Please refer to the example datasets to prepare your own dataset.
@@ -112,6 +259,115 @@ Please refer to the example datasets to prepare your own dataset.
 - Image-text dataset: https://huggingface.co/datasets/hiyouga/geometry3k
 - Multi-image-text dataset: https://huggingface.co/datasets/hiyouga/journeybench-multi-image-vqa
 - Text-image mixed dataset: https://huggingface.co/datasets/hiyouga/rl-mixed-dataset
+
+## Data Processing Scripts
+
+This repository includes data processing scripts for preparing datasets in EasyR1 format. The scripts are located in the `data/` directory.
+
+### Dataset Format
+
+All datasets should follow this format:
+```json
+{
+  "images": ["path/to/image.png"],  // List of image paths (empty for text-only datasets)
+  "problem": "<image>Your question here",  // Problem text (prepend <image> for vision tasks)
+  "answer": "Answer text"
+}
+```
+
+### MathVista Processing
+
+**Script**: `data/data_transform.py`
+
+Processes MathVista dataset for vision-language tasks:
+- Filters for `free_form` questions
+- Extracts and saves images to `data/mathvista_images_geo3k/`
+- Prepends `<image>` tag to problem text
+- Splits into train/test (80/20)
+- Generates JSONL files: `mathvista_train.jsonl` and `mathvista_test.jsonl`
+
+**Usage**:
+```bash
+python data/data_transform.py
+```
+
+**Output Format**:
+- Images saved to `data/mathvista_images_geo3k/XXXXX.png`
+- Problem format: `"<image>Question text"`
+- Images field: `["data/mathvista_images_geo3k/XXXXX.png"]`
+
+### MathVista HuggingFace Upload
+
+**Script**: `data/mathvista_upload_hf.py`
+
+Downloads MathVista, processes it, and uploads to HuggingFace Hub:
+- Downloads from `AI4Math/MathVista`
+- Filters for `free_form` questions
+- Renames columns: `question` → `problem`, `decoded_image` → `image`
+- Prepends `<image>` tag to problem text
+- Splits into train/test (80/20 by default)
+- Uploads to HuggingFace Hub
+
+**Usage**:
+```bash
+# Upload to HuggingFace (requires authentication)
+python data/mathvista_upload_hf.py --repo_id username/mathvista-freeform
+
+# Custom test size
+python data/mathvista_upload_hf.py --repo_id username/mathvista-freeform --test-size 0.3
+
+# Use different source split
+python data/mathvista_upload_hf.py --repo_id username/mathvista-freeform --split test
+
+# Process without uploading (for testing)
+python data/mathvista_upload_hf.py --repo_id username/mathvista-freeform --no-upload
+```
+
+**Authentication**:
+Before uploading, authenticate with HuggingFace:
+```bash
+hf auth login
+# Or set environment variable:
+export HF_TOKEN="your_token_here"
+```
+
+### HotpotQA Processing
+
+**Script**: `data/hotpotqa_processing.py`
+
+Processes HotpotQA dataset for text-only tasks:
+- Loads from `mehuldamani/hotpot_qa`
+- Filters out entries with empty answers
+- Splits into train/test (80/20)
+- Generates JSONL files: `hotpotqa_train.jsonl` and `hotpotqa_test.jsonl`
+
+**Usage**:
+```bash
+python data/hotpotqa_processing.py
+```
+
+**Output Format**:
+- Images field: `[]` (empty, as HotpotQA is text-only)
+- Problem format: Raw question text (no `<image>` tag)
+- Answer format: Answer text
+
+**Note**: HotpotQA is a text-only dataset, so the `images` field is always an empty list.
+
+### Data Processing Features
+
+All processing scripts include:
+- **Train/Test Split**: 80/20 split with configurable seed (default: 42)
+- **Empty Answer Filtering**: Automatically filters out entries with empty answers
+- **Format Consistency**: Ensures all datasets follow the same EasyR1 format
+- **Relative Paths**: Image paths are relative to EasyR1 root directory
+
+### Uploading to HuggingFace
+
+For uploading processed datasets to HuggingFace Hub, see:
+- `data/upload_to_huggingface.py` - Generic upload script for JSONL files
+- `data/mathvista_upload_hf.py` - MathVista-specific upload with processing
+
+Both scripts require HuggingFace authentication. See the scripts for detailed usage instructions.
 
 ## How to Understand GRPO in EasyR1
 
