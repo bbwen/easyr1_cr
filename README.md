@@ -160,10 +160,17 @@ one global dataset block
 
 multiple model blocks
 
-## Running Evaluation
+## Running Evaluation for text-only tasks
 
 ```
 python evaluation.py --config eval_configs/hotpotqa_eval.json
+```
+
+
+## Running Evaluation for vl tasks
+
+```
+python evaluation_vl.py --config eval_configs/mathvista_eval.json
 ```
 
 Example: HotpotQA Evaluation Config: eval_configs/hotpotqa_eval.json
@@ -201,21 +208,3 @@ Example: HotpotQA Evaluation Config: eval_configs/hotpotqa_eval.json
 
 ```
 
----
-
-## Citation
-
-```
-@software{easyr1_cr_2025,
-  title = {EasyR1_cr: Reinforcement Learning with Reflective Confidence},
-  author = {Bingbing Wen et al.},
-  year = {2025},
-  url = {https://github.com/bbwen/easyr1_cr}
-}
-```
-
----
-
-## License
-
-Apache-2.0 License
