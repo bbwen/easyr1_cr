@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reflective Confidence (ReCon) — confidence-aware reinforcement learning for LLMs and VLMs with VeriConf-GRPO.">
+  <title>Reflective Confidence (ReCon)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="#">ReCon</a>
+      <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#method">Method</a>
+        <a href="#evaluation">Evaluation</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="https://github.com/bbwen/easyr1_cr" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">Confidence-Aware Reinforcement Learning</div>
+      <h1>Reflective Confidence</h1>
+      <p class="hero-subtitle">
+        Train large language and vision-language models to reason, reflect on uncertainty,
+        and report calibrated confidence — enabling safer automation and abstention in high-stakes tasks.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/bbwen/easyr1_cr" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View Code
+        </a>
+        <a class="btn btn-secondary" href="#method">Learn More</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p class="section-lead">
+        Standard LLMs often exhibit systematic overconfidence. ReCon addresses this by requiring models
+        to explicitly reflect on uncertainty before reporting a calibrated confidence score.
+        Built on the <a href="https://github.com/hiyouga/EasyR1" target="_blank" rel="noopener">EasyR1</a> RL framework,
+        this repository implements <strong>VeriConf-GRPO</strong> — GRPO training with rewards for both correctness and confidence calibration.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">&#9670;</div>
+          <h3>Reflective Confidence (ReCon)</h3>
+          <p>Structured output format combining reasoning, answer, uncertainty analysis, and a numeric confidence score in [0, 1].</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#9733;</div>
+          <h3>VeriConf-GRPO</h3>
+          <p>GRPO variant that jointly optimizes task accuracy and calibration via format, accuracy, and Brier score rewards.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#9881;</div>
+          <h3>Unified Evaluation</h3>
+          <p>End-to-end evaluation on HotpotQA (text) and MathVista (vision-language) with multiple confidence baselines.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">&#128202;</div>
+          <h3>Calibration Metrics</h3>
+          <p>Accuracy, AUROC, Brier Score, and Expected Calibration Error (ECE) for rigorous confidence assessment.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <h2>Method</h2>
+      <p class="section-lead">
+        ReCon forces models through an explicit reflection step before committing to a confidence value,
+        reducing overconfidence and improving reliability in downstream decision-making.
+      </p>
+
+      <div class="method-flow">
+        <div class="flow-step">
+          <div class="flow-step-num">Step 1</div>
+          <h3>Reason</h3>
+          <p>Model works through the problem inside structured thinking tags.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">Step 2</div>
+          <h3>Answer</h3>
+          <p>Final response is produced in a dedicated answer block.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">Step 3</div>
+          <h3>Reflect</h3>
+          <p>Model analyzes uncertainties, ambiguities, and potential failure modes.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">Step 4</div>
+          <h3>Confide</h3>
+          <p>A calibrated score in [0, 1] is reported alongside the answer.</p>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top: 2.5rem;">
+        <div>
+          <div class="code-label">Required Output Format</div>
+          <pre class="code-block"><code><span class="tag">&lt;redacted_thinking&gt;</span>
+  <span class="content">reasoning process</span>
+<span class="tag">&lt;/redacted_thinking&gt;</span>
+
+<span class="tag">&lt;answer&gt;</span>
+  <span class="content">final answer</span>
+<span class="tag">&lt;/answer&gt;</span>
+
+<span class="tag">&lt;analysis&gt;</span>
+  <span class="content">reflection on uncertainty and limitations</span>
+<span class="tag">&lt;/analysis&gt;</span>
+
+<span class="tag">&lt;confidence&gt;</span>
+  <span class="content">confidence score in [0, 1]</span>
+<span class="tag">&lt;/confidence&gt;</span></code></pre>
+        </div>
+        <div>
+          <div class="code-label">VeriConf-GRPO Reward Components</div>
+          <div class="highlight-box">
+            <p><strong>Format reward</strong> — enforces the structured ReCon output format and valid confidence range.</p>
+          </div>
+          <div class="highlight-box">
+            <p><strong>Accuracy reward</strong> — binary reward for correct final answers against ground truth.</p>
+          </div>
+          <div class="highlight-box">
+            <p><strong>Brier reward</strong> — calibration signal: 1 − (correctness − confidence)²</p>
+          </div>
+          <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 1rem;">
+            Compare against vanilla GRPO (<code>config_ori.yaml</code>) and VeriConf-GRPO (<code>config_conf.yaml</code>) training configs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="evaluation">
+      <h2>Evaluation</h2>
+      <p class="section-lead">
+        A unified evaluation framework supports text-only and vision-language benchmarks
+        with multiple confidence estimation baselines.
+      </p>
+
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top: 0;">Benchmarks</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Benchmark</th>
+                  <th>Modality</th>
+                  <th>Script</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HotpotQA</td>
+                  <td>Text</td>
+                  <td><code>evaluation.py</code></td>
+                </tr>
+                <tr>
+                  <td>MathVista</td>
+                  <td>Vision-Language</td>
+                  <td><code>evaluation_vl.py</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin-top: 0;">Confidence Baselines</h3>
+          <ul style="color: var(--text-muted); font-size: 0.95rem; padding-left: 1.25rem; margin: 0;">
+            <li><strong>VeriConf-GRPO</strong> — trained reflective confidence</li>
+            <li><strong>Vanilla GRPO</strong> — standard RL without calibration</li>
+            <li><strong>Verbalized confidence</strong> — model-reported scores</li>
+            <li><strong>Token-probability confidence</strong> — answer token probabilities</li>
+          </ul>
+          <div class="metrics">
+            <span class="metric-pill">Accuracy</span>
+            <span class="metric-pill">AUROC</span>
+            <span class="metric-pill">Brier Score</span>
+            <span class="metric-pill">ECE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart">
+      <h2>Quick Start</h2>
+      <p class="section-lead">
+        Get started with Docker, train with GRPO, merge checkpoints, and run evaluation.
+      </p>
+
+      <div class="quickstart-step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Environment Setup</h3>
+          <p>Recommended: use the official Docker image with GPU support.</p>
+          <pre class="code-block"><code>docker run --gpus all -it --ipc=host \
+  -v $(pwd):/workspace/easyr1_cr \
+  hiyouga/verl:ngc-th2.8.0-cu12.9-vllm0.11.0 bash</code></pre>
+        </div>
+      </div>
+
+      <div class="quickstart-step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Train with VeriConf-GRPO</h3>
+          <p>Run training scripts for HotpotQA (text) or MathVista (vision-language).</p>
+          <pre class="code-block"><code># HotpotQA — VeriConf-GRPO
+bash examples/qwen3_4b_hotpot_grpo_conf.sh
+
+# MathVista — VeriConf-GRPO
+bash examples/qwen2_5_vl_3b_mathvista_grpo_conf.sh</code></pre>
+        </div>
+      </div>
+
+      <div class="quickstart-step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Merge Checkpoints</h3>
+          <p>Merge FSDP shards before evaluation.</p>
+          <pre class="code-block"><code>python scripts/model_merger.py \
+  --local_dir checkpoints/easy_r1/&lt;experiment&gt;/global_step_x/actor</code></pre>
+        </div>
+      </div>
+
+      <div class="quickstart-step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Evaluate</h3>
+          <p>Run evaluation with a JSON config specifying datasets and model checkpoints.</p>
+          <pre class="code-block"><code># Text tasks
+python evaluation.py --config eval_configs/Hotpot-models/hotpot-vanilla-eval-em.json
+
+# Vision-language tasks
+python evaluation_vl.py --config eval_configs/Hotpot-models/mathvista_eval-em.json</code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/bbwen/easyr1_cr" target="_blank" rel="noopener">GitHub Repository</a>
+      <a href="https://github.com/hiyouga/EasyR1" target="_blank" rel="noopener">EasyR1 Framework</a>
+      <a href="#overview">Back to Top</a>
+    </div>
+    <p>Reflective Confidence (ReCon) &middot; Built on EasyR1</p>
+  </footer>
+
+</body>
+</html>
